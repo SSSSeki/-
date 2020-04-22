@@ -1,0 +1,38 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+from sklearn.externals.six import StringIO
+from sklearn import tree
+
+if __name__ == '__main__':
+    filepath = 'C://Users/Syt/Desktop/lenses.txt'
+    with open(filepath,'r') as fr:
+        lenses=[inst.strip().split('\t')for inst in fr.readlines()]#文件处理
+    lenses_target = []
+    for each in lenses:
+        lenses_target.append(each[-1])
+    #print(lenses_target)
+    lensesLabels = ['age', 'prescript', 'astigmatic', 'tearRate']#特征标签
+    lenses_list = []                                  #保存list的临时列表
+    lenses_dict = {}                                  #保存list的字典
+    for each_label in lensesLabels:
+        for each in lenses:
+            lenses_list.append(each[lensesLabels.index(each_label)])#可以把each[]理解为二维数组
+        lenses_dict[each_label] = lenses_list
+        lenses_list = []                                            #重置lenses_list缓存为0
+    #print(lenses_dict)
+    lenses_pd = pd.DataFrame(lenses_dict)
+    #print(lenses_pd)
+    le = LabelEncoder()
+    for col in lenses_pd.columns:                                   #按列（特征标签）序列化
+        lenses_pd[col] = le.fit_transform(lenses_pd[col])
+    #print(lenses_pd)
+
+    clf = tree.DecisionTreeClassifier(max_depth=4)                  #太多过拟合
+    clf = clf.fit(lenses_pd.values.tolist(),lenses_target)          #创建决策树
+    tree.plot_tree(clf,filled=True)
+    plt.show()
+
+
+
